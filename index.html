@@ -11,7 +11,7 @@
   body {
     margin: 0;
     padding: 0.5em;
-    padding-bottom: 300px;
+    padding-bottom: 320px;
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
     background: #fafafa;
   }
@@ -40,8 +40,8 @@
   }
 
   .row-label {
+    width: 1.8em;
     font-weight: bold;
-    width: 2em;
   }
 
   input {
@@ -62,6 +62,16 @@
   .result {
     font-weight: bold;
     color: #006400;
+  }
+
+  /* ===== 結果表示 ===== */
+  #summary {
+    margin-top: 0.8em;
+    padding: 0.6em;
+    background: #eef6ff;
+    border-radius: 8px;
+    font-weight: bold;
+    min-height: 2.2em;
   }
 
   /* ===== テンキー ===== */
@@ -90,13 +100,8 @@
     background: #ccc;
   }
 
-  .span-col-2 {
-    grid-column: span 2;
-  }
-
-  .span-row-2 {
-    grid-row: span 2;
-  }
+  .span-col-2 { grid-column: span 2; }
+  .span-row-2 { grid-row: span 2; }
 </style>
 </head>
 
@@ -116,6 +121,8 @@
   </thead>
   <tbody id="table-body"></tbody>
 </table>
+
+<div id="summary">入力してください</div>
 
 <!-- テンキー -->
 <div class="keypad">
@@ -142,6 +149,7 @@
 const rows = ['A', 'B', 'C', 'D', 'E'];
 const cols = ['price', 'size', 'count'];
 const tbody = document.getElementById('table-body');
+const summary = document.getElementById('summary');
 let activeInput = null;
 
 // テーブル生成
@@ -166,7 +174,7 @@ document.querySelectorAll('input').forEach(input => {
   });
 });
 
-// ===== テンキー処理 =====
+// ===== テンキー =====
 function pressKey(key) {
   if (!activeInput) return;
   activeInput.value += key;
@@ -185,30 +193,24 @@ function pressClear() {
   activeInput.dispatchEvent(new Event('input'));
 }
 
-// Enter：右 → 行末なら次行左
 function pressEnter() {
   if (!activeInput) return;
-
-  const row = Number(activeInput.dataset.row);
+  const row = +activeInput.dataset.row;
   const col = cols.indexOf(activeInput.dataset.col);
 
-  let nextRow = row;
-  let nextCol = col + 1;
-
-  if (nextCol >= cols.length) {
-    nextCol = 0;
-    nextRow = row + 1;
-  }
+  let r = row, c = col + 1;
+  if (c >= cols.length) { c = 0; r++; }
 
   const next = document.querySelector(
-    `input[data-row="${nextRow}"][data-col="${cols[nextCol]}"]`
+    `input[data-row="${r}"][data-col="${cols[c]}"]`
   );
-
   if (next) next.click();
 }
 
-// ===== 単価計算 =====
+// ===== 計算 & 比較 =====
 function calc() {
+  const values = [];
+
   rows.forEach((row, i) => {
     const price = parseFloat(document.querySelector(`input[data-row="${i}"][data-col="price"]`).value);
     const size  = parseFloat(document.querySelector(`input[data-row="${i}"][data-col="size"]`).value);
@@ -216,11 +218,25 @@ function calc() {
     const cell  = document.getElementById(`result-${row}`);
 
     if (price > 0 && size > 0 && count > 0) {
-      cell.textContent = (price / (size * count)).toFixed(3);
+      const unit = price / (size * count);
+      cell.textContent = unit.toFixed(2);
+      values.push({ row, unit });
     } else {
       cell.textContent = '-';
     }
   });
+
+  if (values.length < 2) {
+    summary.textContent = '比較するには2つ以上入力してください';
+    return;
+  }
+
+  values.sort((a, b) => a.unit - b.unit);
+  const best = values[0];
+  const second = values[1];
+  const diff = (second.unit - best.unit).toFixed(2);
+
+  summary.textContent = `${best.row} が ${second.row} より ${diff} 円安い`;
 }
 
 document.querySelectorAll('input').forEach(i =>
