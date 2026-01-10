@@ -125,14 +125,16 @@
   }
 
   /* ACボタンだけ赤み */
-.ac-button {
-  background: #a00;     /* 赤みを強く */
-  border-color: #c33;   /* 枠も赤系に */
-  color: #fff;          /* 文字色は白 */
+.keypad button.ac-button {
+  background: #a00 !important;   /* !importantをつけて強制する */
+  border-color: #c33 !important;
+  color: #fff !important;
+  opacity: 1;                    /* 透明度をリセット */
 }
 
-.ac-button:active {
-  background: #c33;
+/* 押した時の色も同様に */
+.keypad button.ac-button:active {
+  background: #c33 !important;
 }
 
   .span-col-2 { grid-column: span 2; }
@@ -327,6 +329,7 @@ window.addEventListener('load', () => {
 
 </body>
 </html>
+
 
 
 
