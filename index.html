@@ -20,16 +20,16 @@
 
   body {
     margin: 0;
-    padding: 0.4em;
-    padding-bottom: 330px;
+    padding: 0.35em;
+    padding-bottom: 300px;
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
     background: #fafafa;
   }
 
   h1 {
     text-align: center;
-    font-size: 1.3em;
-    margin: 0.4em 0 0.6em;
+    font-size: 1.25em;
+    margin: 0.4em 0 0.5em;
   }
 
   table {
@@ -39,18 +39,18 @@
   }
 
   col.row-col {
-    width: 28px;
+    width: 26px;
   }
 
   th, td {
-    padding: 0.55em 0.35em;
+    padding: 0.18em 0.15em;
     text-align: center;
     white-space: nowrap;
   }
 
   th {
     background: #eee;
-    font-size: 0.95em;
+    font-size: 0.9em;
   }
 
   .row-label {
@@ -58,18 +58,20 @@
     font-size: 1em;
   }
 
+  /* ===== 入力：線だけ ===== */
   input {
     width: 100%;
-    padding: 0.55em 0.4em;
+    padding: 0.3em 0.15em;
     font-size: 18px;
     text-align: right;
-    border: 1px solid #bbb;
-    border-radius: 8px;
-    background: #fff;
+    border: none;
+    border-bottom: 1px solid #aaa;
+    border-radius: 0;
+    background: transparent;
   }
 
   input.active {
-    border-color: #007aff;
+    border-bottom: 2px solid #007aff;
     background: #eef6ff;
   }
 
@@ -85,7 +87,7 @@
 
   tr.best .result {
     background: #c8ebc8;
-    border-radius: 6px;
+    border-radius: 4px;
   }
 
   /* ===== テンキー ===== */
@@ -95,10 +97,9 @@
     left: 0;
     width: 100%;
     background: #ddd;
-    padding: 0.5em;
+    padding: 0.45em;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    grid-auto-rows: 1fr;
     gap: 0.45em;
   }
 
@@ -184,7 +185,7 @@ rows.forEach((row, r) => {
   tbody.appendChild(tr);
 });
 
-// フォーカス（上書きモード）
+// フォーカス
 document.querySelectorAll('input').forEach(input => {
   input.addEventListener('click', () => {
     document.querySelectorAll('input').forEach(i => i.classList.remove('active'));
@@ -229,7 +230,7 @@ function pressEnter() {
   if (next) next.click();
 }
 
-// ===== 計算 & ハイライト =====
+// ===== 計算 & 最安ハイライト =====
 function calc() {
   const list = [];
 
@@ -264,4 +265,3 @@ document.querySelectorAll('input').forEach(i =>
 
 </body>
 </html>
-
