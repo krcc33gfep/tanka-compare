@@ -11,7 +11,7 @@
   body {
     margin: 0;
     padding: 0.5em;
-    padding-bottom: 260px; /* テンキー分 */
+    padding-bottom: 300px;
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
     background: #fafafa;
   }
@@ -73,12 +73,13 @@
     background: #ddd;
     padding: 0.5em;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 1fr;
     gap: 0.4em;
   }
 
   .keypad button {
-    font-size: 1.4em;
+    font-size: 1.3em;
     padding: 0.8em 0;
     border: none;
     border-radius: 8px;
@@ -87,6 +88,14 @@
 
   .keypad button:active {
     background: #ccc;
+  }
+
+  .span-col-2 {
+    grid-column: span 2;
+  }
+
+  .span-row-2 {
+    grid-row: span 2;
   }
 </style>
 </head>
@@ -110,21 +119,23 @@
 
 <!-- テンキー -->
 <div class="keypad">
-  <button onclick="pressKey('1')">1</button>
-  <button onclick="pressKey('2')">2</button>
-  <button onclick="pressKey('3')">3</button>
+  <button onclick="pressKey('7')">7</button>
+  <button onclick="pressKey('8')">8</button>
+  <button onclick="pressKey('9')">9</button>
+  <button onclick="pressBack()">BC</button>
 
   <button onclick="pressKey('4')">4</button>
   <button onclick="pressKey('5')">5</button>
   <button onclick="pressKey('6')">6</button>
+  <button onclick="pressClear()">C</button>
 
-  <button onclick="pressKey('7')">7</button>
-  <button onclick="pressKey('8')">8</button>
-  <button onclick="pressKey('9')">9</button>
+  <button onclick="pressKey('1')">1</button>
+  <button onclick="pressKey('2')">2</button>
+  <button onclick="pressKey('3')">3</button>
+  <button class="span-row-2" onclick="pressEnter()">E</button>
 
-  <button onclick="pressKey('0')">0</button>
+  <button class="span-col-2" onclick="pressKey('0')">0</button>
   <button onclick="pressKey('.')">.</button>
-  <button onclick="pressEnter()">⏎</button>
 </div>
 
 <script>
@@ -155,14 +166,26 @@ document.querySelectorAll('input').forEach(input => {
   });
 });
 
-// テンキー入力
+// ===== テンキー処理 =====
 function pressKey(key) {
   if (!activeInput) return;
   activeInput.value += key;
   activeInput.dispatchEvent(new Event('input'));
 }
 
-// Enter処理（右 → 行末なら次行左）
+function pressBack() {
+  if (!activeInput) return;
+  activeInput.value = activeInput.value.slice(0, -1);
+  activeInput.dispatchEvent(new Event('input'));
+}
+
+function pressClear() {
+  if (!activeInput) return;
+  activeInput.value = '';
+  activeInput.dispatchEvent(new Event('input'));
+}
+
+// Enter：右 → 行末なら次行左
 function pressEnter() {
   if (!activeInput) return;
 
@@ -181,12 +204,10 @@ function pressEnter() {
     `input[data-row="${nextRow}"][data-col="${cols[nextCol]}"]`
   );
 
-  if (next) {
-    next.click();
-  }
+  if (next) next.click();
 }
 
-// 単価計算
+// ===== 単価計算 =====
 function calc() {
   rows.forEach((row, i) => {
     const price = parseFloat(document.querySelector(`input[data-row="${i}"][data-col="price"]`).value);
