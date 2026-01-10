@@ -6,16 +6,14 @@
 <title>単価比較ツール</title>
 
 <style>
-  * {
-    box-sizing: border-box;
-  }
+  * { box-sizing: border-box; }
 
   body {
     margin: 0;
     padding: 0.5em;
+    padding-bottom: 260px; /* テンキー分 */
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
     background: #fafafa;
-    padding-bottom: 240px; /* テンキー分の余白 */
   }
 
   h1 {
@@ -49,10 +47,8 @@
   input {
     width: 100%;
     padding: 0.4em;
-    font-size: 16px; /* iOSズーム防止 */
+    font-size: 16px;
     text-align: right;
-    appearance: none;
-    -webkit-appearance: none;
     border: 1px solid #ccc;
     border-radius: 6px;
     background: #fff;
@@ -69,7 +65,6 @@
   }
 
   /* ===== テンキー ===== */
-
   .keypad {
     position: fixed;
     bottom: 0;
@@ -78,13 +73,13 @@
     background: #ddd;
     padding: 0.5em;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 0.4em;
   }
 
   .keypad button {
-    font-size: 1.3em;
-    padding: 0.6em 0;
+    font-size: 1.4em;
+    padding: 0.8em 0;
     border: none;
     border-radius: 8px;
     background: #fff;
@@ -92,10 +87,6 @@
 
   .keypad button:active {
     background: #ccc;
-  }
-
-  .keypad .wide {
-    grid-column: span 2;
   }
 </style>
 </head>
@@ -119,43 +110,43 @@
 
 <!-- テンキー -->
 <div class="keypad">
-  <button onclick="pressKey('7')">7</button>
-  <button onclick="pressKey('8')">8</button>
-  <button onclick="pressKey('9')">9</button>
-  <button onclick="pressKey('back')">⌫</button>
+  <button onclick="pressKey('1')">1</button>
+  <button onclick="pressKey('2')">2</button>
+  <button onclick="pressKey('3')">3</button>
 
   <button onclick="pressKey('4')">4</button>
   <button onclick="pressKey('5')">5</button>
   <button onclick="pressKey('6')">6</button>
+
+  <button onclick="pressKey('7')">7</button>
+  <button onclick="pressKey('8')">8</button>
+  <button onclick="pressKey('9')">9</button>
+
+  <button onclick="pressKey('0')">0</button>
   <button onclick="pressKey('.')">.</button>
-
-  <button onclick="pressKey('1')">1</button>
-  <button onclick="pressKey('2')">2</button>
-  <button onclick="pressKey('3')">3</button>
-  <button onclick="pressKey('clear')" class="wide">C</button>
-
-  <button onclick="pressKey('0')" class="wide">0</button>
+  <button onclick="pressEnter()">⏎</button>
 </div>
 
 <script>
 const rows = ['A', 'B', 'C', 'D', 'E'];
+const cols = ['price', 'size', 'count'];
 const tbody = document.getElementById('table-body');
 let activeInput = null;
 
-// 行を生成
-rows.forEach(row => {
+// テーブル生成
+rows.forEach((row, r) => {
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td class="row-label">${row}</td>
-    <td><input readonly id="price-${row}"></td>
-    <td><input readonly id="size-${row}"></td>
-    <td><input readonly id="count-${row}" value="1"></td>
+    ${cols.map(c =>
+      `<td><input readonly data-row="${r}" data-col="${c}"></td>`
+    ).join('')}
     <td id="result-${row}" class="result">-</td>
   `;
   tbody.appendChild(tr);
 });
 
-// 入力欄フォーカス管理
+// フォーカス管理
 document.querySelectorAll('input').forEach(input => {
   input.addEventListener('click', () => {
     document.querySelectorAll('input').forEach(i => i.classList.remove('active'));
@@ -164,27 +155,43 @@ document.querySelectorAll('input').forEach(input => {
   });
 });
 
-// テンキー処理
+// テンキー入力
 function pressKey(key) {
   if (!activeInput) return;
+  activeInput.value += key;
+  activeInput.dispatchEvent(new Event('input'));
+}
 
-  if (key === 'back') {
-    activeInput.value = activeInput.value.slice(0, -1);
-  } else if (key === 'clear') {
-    activeInput.value = '';
-  } else {
-    activeInput.value += key;
+// Enter処理（右 → 行末なら次行左）
+function pressEnter() {
+  if (!activeInput) return;
+
+  const row = Number(activeInput.dataset.row);
+  const col = cols.indexOf(activeInput.dataset.col);
+
+  let nextRow = row;
+  let nextCol = col + 1;
+
+  if (nextCol >= cols.length) {
+    nextCol = 0;
+    nextRow = row + 1;
   }
 
-  activeInput.dispatchEvent(new Event('input'));
+  const next = document.querySelector(
+    `input[data-row="${nextRow}"][data-col="${cols[nextCol]}"]`
+  );
+
+  if (next) {
+    next.click();
+  }
 }
 
 // 単価計算
 function calc() {
-  rows.forEach(row => {
-    const price = parseFloat(document.getElementById(`price-${row}`).value);
-    const size  = parseFloat(document.getElementById(`size-${row}`).value);
-    const count = parseFloat(document.getElementById(`count-${row}`).value);
+  rows.forEach((row, i) => {
+    const price = parseFloat(document.querySelector(`input[data-row="${i}"][data-col="price"]`).value);
+    const size  = parseFloat(document.querySelector(`input[data-row="${i}"][data-col="size"]`).value);
+    const count = parseFloat(document.querySelector(`input[data-row="${i}"][data-col="count"]`).value);
     const cell  = document.getElementById(`result-${row}`);
 
     if (price > 0 && size > 0 && count > 0) {
@@ -195,10 +202,9 @@ function calc() {
   });
 }
 
-// 入力イベント監視
-document.querySelectorAll('input').forEach(input => {
-  input.addEventListener('input', calc);
-});
+document.querySelectorAll('input').forEach(i =>
+  i.addEventListener('input', calc)
+);
 </script>
 
 </body>
