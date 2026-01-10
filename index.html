@@ -160,7 +160,7 @@
 <div class="keypad">
   <button onclick="pressKey('7')">7</button>
   <button onclick="pressKey('8')">8</button>
-  <button onclick="pressKey('9')">9</button>
+  <button onclick="pressKey('9')">←</button>
   <button onclick="pressBack()">←</button>
 
   <button onclick="pressKey('4')">4</button>
@@ -171,12 +171,12 @@
   <button onclick="pressKey('1')">1</button>
   <button onclick="pressKey('2')">2</button>
   <button onclick="pressKey('3')">3</button>
-  <button class="span-row-2" onclick="pressEnter()">E</button>
+  <button onclick="pressAllClear()">AC</button>
 
   <button class="span-col-2" onclick="pressKey('0')">0</button>
   <button onclick="pressKey('.')">.</button>
+  <button onclick="pressEnter()">次</button>
 </div>
-
 <script>
 const rows = ['A','B','C','D','E'];
 const cols = ['price','size','count'];
@@ -275,20 +275,48 @@ function calc() {
 document.querySelectorAll('input').forEach(i =>
   i.addEventListener('input', calc)
 );
-window.addEventListener('load', () => {
+
+// ===== フォーカス初期化 =====
+function focusFirstInput() {
   const first = document.querySelector(
     'input[data-row="0"][data-col="price"]'
   );
   if (first) {
+    document.querySelectorAll('input').forEach(i =>
+      i.classList.remove('active')
+    );
     first.classList.add('active');
     activeInput = first;
     overwrite = true;
   }
+}
+
+// ===== オールクリア =====
+function pressAllClear() {
+  document.querySelectorAll('input').forEach(input => {
+    input.value = '';
+  });
+
+  document.querySelectorAll('.result').forEach(r => {
+    r.textContent = '-';
+  });
+
+  document.querySelectorAll('tr').forEach(tr => {
+    tr.classList.remove('best');
+  });
+
+  focusFirstInput();
+}
+
+// ===== 初期フォーカス =====
+window.addEventListener('load', () => {
+  focusFirstInput();
 });
 </script>
 
 </body>
 </html>
+
 
 
 
