@@ -274,8 +274,19 @@ function calc() {
 document.querySelectorAll('input').forEach(i =>
   i.addEventListener('input', calc)
 );
+window.addEventListener('load', () => {
+  const first = document.querySelector(
+    'input[data-row="0"][data-col="price"]'
+  );
+  if (first) {
+    first.classList.add('active');
+    activeInput = first;
+    overwrite = true;
+  }
+});
 </script>
 
 </body>
 </html>
+
 
