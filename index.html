@@ -41,7 +41,6 @@
     table-layout: fixed;
   }
 
-  /* ===== 列幅管理 ===== */
   col.row-col    { width: 26px; }
   col.price-col  { width: 30%; }
   col.size-col   { width: 30%; }
@@ -66,7 +65,6 @@
     color: #fff;
   }
 
-  /* ===== 入力（線だけ） ===== */
   input {
     width: 100%;
     padding: 0.25em 0.15em;
@@ -126,8 +124,18 @@
     background: #333;
   }
 
+  /* ACボタンだけ赤み */
+  .ac-button {
+    background: #3a1c1c;
+    border-color: #663333;
+    color: #ffdede;
+  }
+
+  .ac-button:active {
+    background: #4a2424;
+  }
+
   .span-col-2 { grid-column: span 2; }
-  .span-row-2 { grid-row: span 2; }
 </style>
 </head>
 
@@ -166,17 +174,20 @@
   <button onclick="pressKey('4')">4</button>
   <button onclick="pressKey('5')">5</button>
   <button onclick="pressKey('6')">6</button>
-  <button onclick="pressClear()">C</button>
+  <!-- ★ 入れ替え：ここがAC（全消去） -->
+  <button class="ac-button" onclick="pressAllClear()">AC</button>
 
   <button onclick="pressKey('1')">1</button>
   <button onclick="pressKey('2')">2</button>
   <button onclick="pressKey('3')">3</button>
-  <button onclick="pressAllClear()">AC</button>
+  <!-- ★ 入れ替え：ここがC（1項目クリア） -->
+  <button onclick="pressClear()">C</button>
 
   <button class="span-col-2" onclick="pressKey('0')">0</button>
   <button onclick="pressKey('.')">.</button>
   <button onclick="pressEnter()">次</button>
 </div>
+
 <script>
 const rows = ['A','B','C','D','E'];
 const cols = ['price','size','count'];
@@ -226,6 +237,7 @@ function pressBack() {
   activeInput.dispatchEvent(new Event('input'));
 }
 
+// ★ C（1項目クリア）
 function pressClear() {
   if (!activeInput) return;
   activeInput.value = '';
@@ -276,22 +288,7 @@ document.querySelectorAll('input').forEach(i =>
   i.addEventListener('input', calc)
 );
 
-// ===== フォーカス初期化 =====
-function focusFirstInput() {
-  const first = document.querySelector(
-    'input[data-row="0"][data-col="price"]'
-  );
-  if (first) {
-    document.querySelectorAll('input').forEach(i =>
-      i.classList.remove('active')
-    );
-    first.classList.add('active');
-    activeInput = first;
-    overwrite = true;
-  }
-}
-
-// ===== オールクリア =====
+// ===== オールクリア（★ AC） =====
 function pressAllClear() {
   document.querySelectorAll('input').forEach(input => {
     input.value = '';
@@ -308,7 +305,21 @@ function pressAllClear() {
   focusFirstInput();
 }
 
-// ===== 初期フォーカス =====
+// ===== フォーカス初期化 =====
+function focusFirstInput() {
+  const first = document.querySelector(
+    'input[data-row="0"][data-col="price"]'
+  );
+  if (first) {
+    document.querySelectorAll('input').forEach(i =>
+      i.classList.remove('active')
+    );
+    first.classList.add('active');
+    activeInput = first;
+    overwrite = true;
+  }
+}
+
 window.addEventListener('load', () => {
   focusFirstInput();
 });
