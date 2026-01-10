@@ -16,6 +16,8 @@
 
   html, body {
     touch-action: manipulation;
+    background: #111;
+    color: #f2f2f2;
   }
 
   body {
@@ -23,7 +25,6 @@
     padding: 0.35em;
     padding-bottom: 300px;
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
-    background: #fafafa;
     font-size: 18px;
   }
 
@@ -31,6 +32,7 @@
     text-align: center;
     font-size: 1.25em;
     margin: 0.4em 0 0.5em;
+    color: #fff;
   }
 
   table {
@@ -43,7 +45,7 @@
   col.row-col    { width: 26px; }
   col.price-col  { width: 30%; }
   col.size-col   { width: 30%; }
-  col.count-col  { width: 15%; } /* ← 個数を細く */
+  col.count-col  { width: 15%; }
   col.result-col { width: 25%; }
 
   th, td {
@@ -53,13 +55,15 @@
   }
 
   th {
-    background: #eee;
+    background: #1f1f1f;
     font-size: 1.2em;
+    color: #ccc;
   }
 
   .row-label {
     font-weight: bold;
     font-size: 1em;
+    color: #fff;
   }
 
   /* ===== 入力（線だけ） ===== */
@@ -69,27 +73,28 @@
     font-size: 22px;
     text-align: right;
     border: none;
-    border-bottom: 1px solid #aaa;
+    border-bottom: 1px solid #555;
     background: transparent;
+    color: #fff;
   }
 
   input.active {
-    border-bottom: 2px solid #007aff;
-    background: #eef6ff;
+    border-bottom: 2px solid #0a84ff;
+    background: rgba(10,132,255,0.15);
   }
 
   .result {
     font-weight: bold;
     font-size: 18px;
-    color: #006400;
+    color: #7dff7d;
   }
 
   tr.best {
-    background: #e8f7e8;
+    background: rgba(0, 120, 0, 0.25);
   }
 
   tr.best .result {
-    background: #c8ebc8;
+    background: rgba(0, 160, 0, 0.35);
     border-radius: 4px;
   }
 
@@ -99,23 +104,25 @@
     bottom: 0;
     left: 0;
     width: 100%;
-    background: #ddd;
+    background: #1a1a1a;
     padding: 0.45em;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 0.45em;
+    border-top: 1px solid #333;
   }
 
   .keypad button {
     font-size: 1.35em;
     padding: 0.5em 0;
-    border: none;
+    border: 1px solid #333;
     border-radius: 10px;
-    background: #fff;
+    background: #222;
+    color: #fff;
   }
 
   .keypad button:active {
-    background: #ccc;
+    background: #333;
   }
 
   .span-col-2 { grid-column: span 2; }
@@ -271,5 +278,3 @@ document.querySelectorAll('input').forEach(i =>
 
 </body>
 </html>
-
-
