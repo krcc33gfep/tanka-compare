@@ -82,17 +82,20 @@
     background: rgba(10,132,255,0.15);
   }
 
-  .result {
+  /* 単価表示用スタイルの維持 */
+  .result-input {
     font-weight: bold;
     font-size: 22px;
     color: #7dff7d;
+    cursor: default;
+    outline: none;
   }
 
   tr.best {
     background: rgba(0, 120, 0, 0.25);
   }
 
-  tr.best .result {
+  tr.best .result-input {
     background: rgba(0, 160, 0, 0.35);
     border-radius: 4px;
   }
@@ -124,15 +127,13 @@
     background: #333;
   }
 
-  /* ACボタンだけ赤み */
+/* ACボタンの色固定設定 */
 .keypad button.ac-button {
-  background: #a00 !important;   /* !importantをつけて強制する */
+  background: #a00 !important;
   border-color: #c33 !important;
   color: #fff !important;
-  opacity: 1;                    /* 透明度をリセット */
 }
 
-/* 押した時の色も同様に */
 .keypad button.ac-button:active {
   background: #c33 !important;
 }
@@ -176,13 +177,11 @@
   <button onclick="pressKey('4')">4</button>
   <button onclick="pressKey('5')">5</button>
   <button onclick="pressKey('6')">6</button>
-  <!-- ★ 入れ替え：ここがAC（全消去） -->
   <button class="ac-button" onclick="pressAllClear()">AC</button>
 
   <button onclick="pressKey('1')">1</button>
   <button onclick="pressKey('2')">2</button>
   <button onclick="pressKey('3')">3</button>
-  <!-- ★ 入れ替え：ここがC（1項目クリア） -->
   <button onclick="pressClear()">C</button>
 
   <button class="span-col-2" onclick="pressKey('0')">0</button>
@@ -207,13 +206,13 @@ rows.forEach((row, r) => {
     ${cols.map(c =>
       `<td><input readonly data-row="${r}" data-col="${c}"></td>`
     ).join('')}
-    <td class="result" id="result-${row}">-</td>
+    <td><input readonly class="result-input" id="result-${row}" value=""></td>
   `;
   tbody.appendChild(tr);
 });
 
-// フォーカス
-document.querySelectorAll('input').forEach(input => {
+// フォーカス設定（単価入力欄以外に適用）
+document.querySelectorAll('input:not(.result-input)').forEach(input => {
   input.addEventListener('click', () => {
     document.querySelectorAll('input').forEach(i => i.classList.remove('active'));
     input.classList.add('active');
@@ -239,7 +238,6 @@ function pressBack() {
   activeInput.dispatchEvent(new Event('input'));
 }
 
-// ★ C（1項目クリア）
 function pressClear() {
   if (!activeInput) return;
   activeInput.value = '';
@@ -273,10 +271,10 @@ function calc() {
 
     if (price > 0 && size > 0 && count > 0) {
       const unit = price / (size * count);
-      cell.textContent = unit.toFixed(2);
+      cell.value = unit.toFixed(2); // textContentからvalueに変更
       list.push({ unit, tr });
     } else {
-      cell.textContent = '-';
+      cell.value = ''; // ハイフンの代わりに空文字（下線は残る）
     }
   });
 
@@ -290,20 +288,14 @@ document.querySelectorAll('input').forEach(i =>
   i.addEventListener('input', calc)
 );
 
-// ===== オールクリア（★ AC） =====
+// ===== オールクリア（AC） =====
 function pressAllClear() {
   document.querySelectorAll('input').forEach(input => {
     input.value = '';
   });
-
-  document.querySelectorAll('.result').forEach(r => {
-    r.textContent = '-';
-  });
-
   document.querySelectorAll('tr').forEach(tr => {
     tr.classList.remove('best');
   });
-
   focusFirstInput();
 }
 
@@ -329,10 +321,3 @@ window.addEventListener('load', () => {
 
 </body>
 </html>
-
-
-
-
-
-
-
