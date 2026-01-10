@@ -5,53 +5,107 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>単価比較ツール</title>
 <style>
-body { font-family: sans-serif; padding: 1em; }
-input { width: 100px; margin: 0.2em; }
-button { margin-top: 0.5em; padding: 0.5em 1em; }
-.result { margin-top: 1em; font-weight: bold; }
+  body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0.5em;
+    box-sizing: border-box;
+    background: #fafafa;
+  }
+  h1 {
+    text-align: center;
+    margin: 0.5em 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  th, td {
+    text-align: center;
+    padding: 0.4em;
+  }
+  th {
+    background: #eee;
+  }
+  input {
+    width: 90%;
+    padding: 0.4em;
+    font-size: 1em;
+    text-align: right;
+  }
+  .row-label {
+    font-weight: bold;
+    width: 2em;
+  }
+  .unit {
+    background: #fff;
+    border-radius: 4px;
+  }
+  .result {
+    font-weight: bold;
+    color: #006400;
+  }
+  @media (max-width: 600px) {
+    input { font-size: 0.9em; }
+  }
 </style>
 </head>
 <body>
-<h2>単価比較ツール（オフライン対応）</h2>
 
-<div>
-  <h3>商品A</h3>
-  <label>価格(円)：<input type="number" id="priceA"></label><br>
-  <label>数量(個・gなど)：<input type="number" id="qtyA"></label>
-</div>
+<h1>単価比較ツール</h1>
 
-<div>
-  <h3>商品B</h3>
-  <label>価格(円)：<input type="number" id="priceB"></label><br>
-  <label>数量(個・gなど)：<input type="number" id="qtyB"></label>
-</div>
-
-<button onclick="compare()">比較する</button>
-
-<div class="result" id="result"></div>
+<table>
+  <thead>
+    <tr>
+      <th></th>
+      <th>価格(円)</th>
+      <th>容量</th>
+      <th>個数</th>
+      <th>単価(円)</th>
+    </tr>
+  </thead>
+  <tbody id="table-body">
+  </tbody>
+</table>
 
 <script>
-function compare() {
-  const priceA = parseFloat(document.getElementById('priceA').value);
-  const qtyA = parseFloat(document.getElementById('qtyA').value);
-  const priceB = parseFloat(document.getElementById('priceB').value);
-  const qtyB = parseFloat(document.getElementById('qtyB').value);
+const rows = ['A', 'B', 'C', 'D', 'E'];
+const tbody = document.getElementById('table-body');
 
-  if ([priceA, qtyA, priceB, qtyB].some(isNaN)) {
-    alert('すべての値を入力してください');
-    return;
-  }
+rows.forEach(row => {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="row-label">${row}</td>
+    <td><input type="number" id="price-${row}" class="unit" min="0"></td>
+    <td><input type="number" id="size-${row}" class="unit" min="0"></td>
+    <td><input type="number" id="count-${row}" class="unit" min="1" value="1"></td>
+    <td id="result-${row}" class="result">-</td>
+  `;
+  tbody.appendChild(tr);
+});
 
-  const unitA = priceA / qtyA;
-  const unitB = priceB / qtyB;
+function calc() {
+  rows.forEach(row => {
+    const price = parseFloat(document.getElementById(`price-${row}`).value) || 0;
+    const size  = parseFloat(document.getElementById(`size-${row}`).value) || 0;
+    const count = parseFloat(document.getElementById(`count-${row}`).value) || 0;
+    const resultCell = document.getElementById(`result-${row}`);
 
-  let msg = `商品Aの単価: ${unitA.toFixed(2)} 円<br>商品Bの単価: ${unitB.toFixed(2)} 円<br>`;
-  if (unitA < unitB) msg += '➡ 商品Aの方が安い！';
-  else if (unitA > unitB) msg += '➡ 商品Bの方が安い！';
-  else msg += '➡ どちらも同じ単価です。';
-
-  document.getElementById('result').innerHTML = msg;
+    if (price > 0 && size > 0 && count > 0) {
+      const unitPrice = price / (size * count);
+      resultCell.textContent = unitPrice.toFixed(3);
+    } else {
+      resultCell.textContent = '-';
+    }
+  });
 }
+
+// 全inputにイベントを設定
+document.querySelectorAll('input').forEach(input => {
+  input.addEventListener('input', calc);
+});
 </script>
+
 </body>
 </html>
