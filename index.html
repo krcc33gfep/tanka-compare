@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>単価比較ツール</title>
+<style>
+body { font-family: sans-serif; padding: 1em; }
+input { width: 100px; margin: 0.2em; }
+button { margin-top: 0.5em; padding: 0.5em 1em; }
+.result { margin-top: 1em; font-weight: bold; }
+</style>
+</head>
+<body>
+<h2>単価比較ツール（オフライン対応）</h2>
+
+<div>
+  <h3>商品A</h3>
+  <label>価格(円)：<input type="number" id="priceA"></label><br>
+  <label>数量(個・gなど)：<input type="number" id="qtyA"></label>
+</div>
+
+<div>
+  <h3>商品B</h3>
+  <label>価格(円)：<input type="number" id="priceB"></label><br>
+  <label>数量(個・gなど)：<input type="number" id="qtyB"></label>
+</div>
+
+<button onclick="compare()">比較する</button>
+
+<div class="result" id="result"></div>
+
+<script>
+function compare() {
+  const priceA = parseFloat(document.getElementById('priceA').value);
+  const qtyA = parseFloat(document.getElementById('qtyA').value);
+  const priceB = parseFloat(document.getElementById('priceB').value);
+  const qtyB = parseFloat(document.getElementById('qtyB').value);
+
+  if ([priceA, qtyA, priceB, qtyB].some(isNaN)) {
+    alert('すべての値を入力してください');
+    return;
+  }
+
+  const unitA = priceA / qtyA;
+  const unitB = priceB / qtyB;
+
+  let msg = `商品Aの単価: ${unitA.toFixed(2)} 円<br>商品Bの単価: ${unitB.toFixed(2)} 円<br>`;
+  if (unitA < unitB) msg += '➡ 商品Aの方が安い！';
+  else if (unitA > unitB) msg += '➡ 商品Bの方が安い！';
+  else msg += '➡ どちらも同じ単価です。';
+
+  document.getElementById('result').innerHTML = msg;
+}
+</script>
+</body>
+</html>
