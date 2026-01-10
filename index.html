@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -12,109 +13,127 @@
 <title>単価比較ツール</title>
 
 <style>
-  * { box-sizing: border-box; }
+* { box-sizing: border-box; }
 
-  html, body {
-    touch-action: manipulation;
-  }
+html, body {
+  touch-action: manipulation;
+}
 
-  body {
-    margin: 0;
-    padding: 0.35em;
-    padding-bottom: 300px;
-    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
-    background: #fafafa;
-    font-size: 18px;
-  }
+body {
+  margin: 0;
+  padding: 0.35em;
+  padding-bottom: 300px;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
+  background: #111;
+  color: #eee;
+  font-size: 18px;
+}
 
-  h1 {
-    text-align: center;
-    font-size: 1.25em;
-    margin: 0.4em 0 0.5em;
-  }
+h1 {
+  text-align: center;
+  font-size: 1.25em;
+  margin: 0.4em 0 0.5em;
+  color: #ddd;
+}
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    table-layout: fixed;
-  }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
 
-  col.row-col    { width: 26px; }
-  col.price-col  { width: 30%; }
-  col.size-col   { width: 30%; }
-  col.count-col  { width: 15%; }
-  col.result-col { width: 25%; }
+/* ===== 列幅 ===== */
+col.row-col    { width: 26px; }
+col.price-col  { width: 30%; }
+col.size-col   { width: 30%; }
+col.count-col  { width: 15%; }
+col.result-col { width: 25%; }
 
-  th, td {
-    padding: 0.32em 0.15em;
-    text-align: center;
-    white-space: nowrap;
-  }
+th, td {
+  padding: 0.32em 0.15em;
+  text-align: center;
+  white-space: nowrap;
+}
 
-  th {
-    background: #eee;
-    font-size: 1.2em;
-  }
+th {
+  background: #222;
+  font-size: 1.2em;
+}
 
-  .row-label {
-    font-weight: bold;
-    font-size: 1em;
-  }
+.row-label {
+  font-weight: bold;
+  display: inline-block;
+  transform: scaleY(1.3);
+  color: #aaa;
+}
 
-  input {
-    width: 100%;
-    padding: 0.42em 0.15em;
-    font-size: 26px;
-    line-height: 1.1;
-    text-align: right;
-    border: none;
-    border-bottom: 1px solid #aaa;
-    background: transparent;
-  }
+/* ===== 入力（下線のみ） ===== */
+input {
+  width: 100%;
+  padding: 0.42em 0.15em;
+  font-size: 26px;
+  line-height: 1.1;
+  text-align: right;
+  border: none;
+  border-bottom: 1px solid #555;
+  background: transparent;
+  color: #fff;
+}
 
-  input.active {
-    border-bottom: 2px solid #007aff;
-  }
+input.active {
+  border-bottom: 2px solid #4da3ff;
+}
 
-  .result {
-    font-weight: bold;
-    font-size: 22px;
-    color: #006400;
-  }
+/* ===== 結果 ===== */
+.result {
+  font-weight: bold;
+  font-size: 22px;
+  color: #8fdf8f;
+}
 
-  tr.best {
-    background: #e8f7e8;
-  }
+tr.best {
+  background: #1c2a1c;
+}
 
-  tr.best .result {
-    font-size: 24px;
-  }
+tr.best .result {
+  font-size: 24px;
+}
 
-  .keypad {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: #ddd;
-    padding: 0.45em;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 0.45em;
-  }
+/* ===== テンキー ===== */
+.keypad {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #222;
+  padding: 0.45em;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.45em;
+}
 
-  .keypad button {
-    font-size: 1.35em;
-    padding: 0.5em 0;
-    border: none;
-    border-radius: 10px;
-    background: #fff;
-  }
+.keypad button {
+  font-size: 1.35em;
+  padding: 0.5em 0;
+  border: none;
+  border-radius: 10px;
+  background: #333;
+  color: #fff;
+}
 
-  .keypad button:active {
-    background: #ccc;
-  }
+.keypad button:active {
+  background: #555;
+}
 
-  .span-col-2 { grid-column: span 2; }
+/* ACだけ赤 */
+.keypad button.ac {
+  background: #5a2a2a;
+}
+.keypad button.ac:active {
+  background: #7a3a3a;
+}
+
+.span-col-2 { grid-column: span 2; }
 </style>
 </head>
 
@@ -142,7 +161,7 @@
   <tbody id="table-body"></tbody>
 </table>
 
-<!-- テンキー（C / AC 入れ替えのみ） -->
+<!-- ===== テンキー ===== -->
 <div class="keypad">
   <button onclick="pressKey('7')">7</button>
   <button onclick="pressKey('8')">8</button>
@@ -152,7 +171,7 @@
   <button onclick="pressKey('4')">4</button>
   <button onclick="pressKey('5')">5</button>
   <button onclick="pressKey('6')">6</button>
-  <button onclick="pressAllClear()">AC</button>
+  <button class="ac" onclick="pressAllClear()">AC</button>
 
   <button onclick="pressKey('1')">1</button>
   <button onclick="pressKey('2')">2</button>
@@ -172,6 +191,7 @@ const tbody = document.getElementById('table-body');
 let activeInput = null;
 let overwrite = false;
 
+/* ===== テーブル生成 ===== */
 rows.forEach((row, r) => {
   const tr = document.createElement('tr');
   tr.dataset.row = r;
@@ -185,15 +205,19 @@ rows.forEach((row, r) => {
   tbody.appendChild(tr);
 });
 
+/* ===== フォーカス ===== */
 document.querySelectorAll('input').forEach(input => {
   input.addEventListener('click', () => {
-    document.querySelectorAll('input').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('input').forEach(i =>
+      i.classList.remove('active')
+    );
     input.classList.add('active');
     activeInput = input;
     overwrite = true;
   });
 });
 
+/* ===== テンキー処理 ===== */
 function pressKey(key) {
   if (!activeInput) return;
   if (overwrite) {
@@ -228,21 +252,33 @@ function pressEnter() {
   if (next) next.click();
 }
 
-function pressAllClear() {
-  document.querySelectorAll('input').forEach(i => i.value = '');
-  document.querySelectorAll('.result').forEach(r => r.textContent = '-');
-  document.querySelectorAll('tr').forEach(tr => tr.classList.remove('best'));
-  const first = document.querySelector('input[data-row="0"][data-col="price"]');
+/* ===== フォーカス初期化 ===== */
+function focusFirstInput() {
+  const first = document.querySelector(
+    'input[data-row="0"][data-col="price"]'
+  );
   if (first) {
-    document.querySelectorAll('input').forEach(i => i.classList.remove('active'));
+    document.querySelectorAll('input').forEach(i =>
+      i.classList.remove('active')
+    );
     first.classList.add('active');
     activeInput = first;
     overwrite = true;
   }
 }
 
+/* ===== AC ===== */
+function pressAllClear() {
+  document.querySelectorAll('input').forEach(i => i.value = '');
+  document.querySelectorAll('.result').forEach(r => r.textContent = '-');
+  document.querySelectorAll('tr').forEach(tr => tr.classList.remove('best'));
+  focusFirstInput();
+}
+
+/* ===== 計算 ===== */
 function calc() {
   const list = [];
+
   rows.forEach((row, i) => {
     const tr = tbody.querySelector(`tr[data-row="${i}"]`);
     tr.classList.remove('best');
@@ -271,12 +307,7 @@ document.querySelectorAll('input').forEach(i =>
 );
 
 window.addEventListener('load', () => {
-  const first = document.querySelector('input[data-row="0"][data-col="price"]');
-  if (first) {
-    first.classList.add('active');
-    activeInput = first;
-    overwrite = true;
-  }
+  focusFirstInput();
 });
 </script>
 
