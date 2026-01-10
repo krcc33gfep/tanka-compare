@@ -24,6 +24,7 @@
     padding-bottom: 300px;
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
     background: #fafafa;
+    font-size: 18px;
   }
 
   h1 {
@@ -38,9 +39,12 @@
     table-layout: fixed;
   }
 
-  col.row-col {
-    width: 26px;
-  }
+  /* ===== 列幅管理 ===== */
+  col.row-col    { width: 26px; }
+  col.price-col  { width: 30%; }
+  col.size-col   { width: 30%; }
+  col.count-col  { width: 15%; } /* ← 個数を細く */
+  col.result-col { width: 25%; }
 
   th, td {
     padding: 0.18em 0.15em;
@@ -50,7 +54,7 @@
 
   th {
     background: #eee;
-    font-size: 1.2em;
+    font-size: 0.9em;
   }
 
   .row-label {
@@ -58,7 +62,7 @@
     font-size: 1em;
   }
 
-  /* ===== 入力：線だけ ===== */
+  /* ===== 入力（線だけ） ===== */
   input {
     width: 100%;
     padding: 0.3em 0.15em;
@@ -66,7 +70,6 @@
     text-align: right;
     border: none;
     border-bottom: 1px solid #aaa;
-    border-radius: 0;
     background: transparent;
   }
 
@@ -77,7 +80,7 @@
 
   .result {
     font-weight: bold;
-    font-size: 22px;
+    font-size: 18px;
     color: #006400;
   }
 
@@ -127,7 +130,10 @@
 <table>
   <colgroup>
     <col class="row-col">
-    <col><col><col><col>
+    <col class="price-col">
+    <col class="size-col">
+    <col class="count-col">
+    <col class="result-col">
   </colgroup>
 
   <thead>
@@ -265,6 +271,3 @@ document.querySelectorAll('input').forEach(i =>
 
 </body>
 </html>
-
-
-
