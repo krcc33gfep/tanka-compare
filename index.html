@@ -2,11 +2,21 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1.0,
+               maximum-scale=1.0,
+               user-scalable=no">
+
 <title>単価比較ツール</title>
 
 <style>
   * { box-sizing: border-box; }
+
+  html, body {
+    touch-action: manipulation;
+  }
 
   body {
     margin: 0;
@@ -28,7 +38,9 @@
     table-layout: fixed;
   }
 
-  col.row-col { width: 28px; }
+  col.row-col {
+    width: 28px;
+  }
 
   th, td {
     padding: 0.55em 0.35em;
@@ -172,7 +184,7 @@ rows.forEach((row, r) => {
   tbody.appendChild(tr);
 });
 
-// フォーカス（上書き）
+// フォーカス（上書きモード）
 document.querySelectorAll('input').forEach(input => {
   input.addEventListener('click', () => {
     document.querySelectorAll('input').forEach(i => i.classList.remove('active'));
@@ -233,7 +245,7 @@ function calc() {
     if (price > 0 && size > 0 && count > 0) {
       const unit = price / (size * count);
       cell.textContent = unit.toFixed(2);
-      list.push({ row, unit, tr });
+      list.push({ unit, tr });
     } else {
       cell.textContent = '-';
     }
@@ -241,7 +253,7 @@ function calc() {
 
   if (!list.length) return;
 
-  list.sort((a,b) => a.unit - b.unit);
+  list.sort((a, b) => a.unit - b.unit);
   list[0].tr.classList.add('best');
 }
 
