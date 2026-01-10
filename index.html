@@ -40,8 +40,8 @@
   }
 
   .row-label {
-    width: 1.8em;
     font-weight: bold;
+    font-size: 0.9em;
   }
 
   input {
@@ -64,7 +64,6 @@
     color: #006400;
   }
 
-  /* ===== 結果表示 ===== */
   #summary {
     margin-top: 0.8em;
     padding: 0.6em;
@@ -72,6 +71,7 @@
     border-radius: 8px;
     font-weight: bold;
     min-height: 2.2em;
+    text-align: center;
   }
 
   /* ===== テンキー ===== */
@@ -110,6 +110,14 @@
 <h1>単価比較ツール</h1>
 
 <table>
+  <colgroup>
+    <col style="width:28px">
+    <col>
+    <col>
+    <col>
+    <col>
+  </colgroup>
+
   <thead>
     <tr>
       <th></th>
@@ -146,11 +154,13 @@
 </div>
 
 <script>
-const rows = ['A', 'B', 'C', 'D', 'E'];
-const cols = ['price', 'size', 'count'];
+const rows = ['A','B','C','D','E'];
+const cols = ['price','size','count'];
 const tbody = document.getElementById('table-body');
 const summary = document.getElementById('summary');
+
 let activeInput = null;
+let overwrite = false;
 
 // テーブル生成
 rows.forEach((row, r) => {
@@ -165,18 +175,25 @@ rows.forEach((row, r) => {
   tbody.appendChild(tr);
 });
 
-// フォーカス管理
+// フォーカス（上書きモード）
 document.querySelectorAll('input').forEach(input => {
   input.addEventListener('click', () => {
     document.querySelectorAll('input').forEach(i => i.classList.remove('active'));
     input.classList.add('active');
     activeInput = input;
+    overwrite = true;
   });
 });
 
 // ===== テンキー =====
 function pressKey(key) {
   if (!activeInput) return;
+
+  if (overwrite) {
+    activeInput.value = '';
+    overwrite = false;
+  }
+
   activeInput.value += key;
   activeInput.dispatchEvent(new Event('input'));
 }
@@ -195,21 +212,22 @@ function pressClear() {
 
 function pressEnter() {
   if (!activeInput) return;
-  const row = +activeInput.dataset.row;
-  const col = cols.indexOf(activeInput.dataset.col);
 
-  let r = row, c = col + 1;
-  if (c >= cols.length) { c = 0; r++; }
+  const r = +activeInput.dataset.row;
+  const c = cols.indexOf(activeInput.dataset.col);
+
+  let nr = r, nc = c + 1;
+  if (nc >= cols.length) { nc = 0; nr++; }
 
   const next = document.querySelector(
-    `input[data-row="${r}"][data-col="${cols[c]}"]`
+    `input[data-row="${nr}"][data-col="${cols[nc]}"]`
   );
   if (next) next.click();
 }
 
-// ===== 計算 & 比較 =====
+// ===== 計算 =====
 function calc() {
-  const values = [];
+  const list = [];
 
   rows.forEach((row, i) => {
     const price = parseFloat(document.querySelector(`input[data-row="${i}"][data-col="price"]`).value);
@@ -220,23 +238,19 @@ function calc() {
     if (price > 0 && size > 0 && count > 0) {
       const unit = price / (size * count);
       cell.textContent = unit.toFixed(2);
-      values.push({ row, unit });
+      list.push({ row, unit });
     } else {
       cell.textContent = '-';
     }
   });
 
-  if (values.length < 2) {
-    summary.textContent = '比較するには2つ以上入力してください';
+  if (!list.length) {
+    summary.textContent = '入力してください';
     return;
   }
 
-  values.sort((a, b) => a.unit - b.unit);
-  const best = values[0];
-  const second = values[1];
-  const diff = (second.unit - best.unit).toFixed(2);
-
-  summary.textContent = `${best.row} が ${second.row} より ${diff} 円安い`;
+  list.sort((a,b) => a.unit - b.unit);
+  summary.textContent = `${list[0].row} が一番安い`;
 }
 
 document.querySelectorAll('input').forEach(i =>
