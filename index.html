@@ -4,53 +4,66 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>単価比較ツール</title>
+
 <style>
+  * {
+    box-sizing: border-box;
+  }
+
   body {
-    font-family: sans-serif;
     margin: 0;
     padding: 0.5em;
-    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
     background: #fafafa;
   }
+
   h1 {
     text-align: center;
+    font-size: 1.2em;
     margin: 0.5em 0;
   }
+
   table {
     width: 100%;
     border-collapse: collapse;
     table-layout: fixed;
   }
+
   th, td {
-    text-align: center;
     padding: 0.4em;
+    text-align: center;
+    white-space: nowrap;
   }
+
   th {
     background: #eee;
+    font-size: 0.9em;
   }
-  input {
-    width: 90%;
-    padding: 0.4em;
-    font-size: 1em;
-    text-align: right;
-  }
+
   .row-label {
     font-weight: bold;
     width: 2em;
   }
-  .unit {
+
+  input {
+    width: 100%;
+    padding: 0.4em;
+    font-size: 16px; /* iOSズーム防止 */
+    text-align: right;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid #ccc;
+    border-radius: 6px;
     background: #fff;
-    border-radius: 4px;
   }
+
   .result {
     font-weight: bold;
     color: #006400;
   }
-  @media (max-width: 600px) {
-    input { font-size: 0.9em; }
-  }
 </style>
 </head>
+
 <body>
 
 <h1>単価比較ツール</h1>
@@ -59,14 +72,13 @@
   <thead>
     <tr>
       <th></th>
-      <th>価格(円)</th>
+      <th>価格</th>
       <th>容量</th>
       <th>個数</th>
-      <th>単価(円)</th>
+      <th>単価</th>
     </tr>
   </thead>
-  <tbody id="table-body">
-  </tbody>
+  <tbody id="table-body"></tbody>
 </table>
 
 <script>
@@ -77,9 +89,35 @@ rows.forEach(row => {
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td class="row-label">${row}</td>
-    <td><input type="number" id="price-${row}" class="unit" min="0"></td>
-    <td><input type="number" id="size-${row}" class="unit" min="0"></td>
-    <td><input type="number" id="count-${row}" class="unit" min="1" value="1"></td>
+
+    <td>
+      <input
+        type="text"
+        inputmode="decimal"
+        pattern="[0-9]*"
+        id="price-${row}"
+      >
+    </td>
+
+    <td>
+      <input
+        type="text"
+        inputmode="decimal"
+        pattern="[0-9]*"
+        id="size-${row}"
+      >
+    </td>
+
+    <td>
+      <input
+        type="text"
+        inputmode="numeric"
+        pattern="[0-9]*"
+        id="count-${row}"
+        value="1"
+      >
+    </td>
+
     <td id="result-${row}" class="result">-</td>
   `;
   tbody.appendChild(tr);
@@ -87,21 +125,21 @@ rows.forEach(row => {
 
 function calc() {
   rows.forEach(row => {
-    const price = parseFloat(document.getElementById(`price-${row}`).value) || 0;
-    const size  = parseFloat(document.getElementById(`size-${row}`).value) || 0;
-    const count = parseFloat(document.getElementById(`count-${row}`).value) || 0;
-    const resultCell = document.getElementById(`result-${row}`);
+    const price = parseFloat(document.getElementById(`price-${row}`).value);
+    const size  = parseFloat(document.getElementById(`size-${row}`).value);
+    const count = parseFloat(document.getElementById(`count-${row}`).value);
+
+    const cell = document.getElementById(`result-${row}`);
 
     if (price > 0 && size > 0 && count > 0) {
-      const unitPrice = price / (size * count);
-      resultCell.textContent = unitPrice.toFixed(3);
+      const unit = price / (size * count);
+      cell.textContent = unit.toFixed(3);
     } else {
-      resultCell.textContent = '-';
+      cell.textContent = '-';
     }
   });
 }
 
-// 全inputにイベントを設定
 document.querySelectorAll('input').forEach(input => {
   input.addEventListener('input', calc);
 });
