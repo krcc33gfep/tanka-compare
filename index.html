@@ -15,6 +15,7 @@
     padding: 0.5em;
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
     background: #fafafa;
+    padding-bottom: 240px; /* テンキー分の余白 */
   }
 
   h1 {
@@ -57,9 +58,44 @@
     background: #fff;
   }
 
+  input.active {
+    border-color: #007aff;
+    background: #eef6ff;
+  }
+
   .result {
     font-weight: bold;
     color: #006400;
+  }
+
+  /* ===== テンキー ===== */
+
+  .keypad {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: #ddd;
+    padding: 0.5em;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.4em;
+  }
+
+  .keypad button {
+    font-size: 1.3em;
+    padding: 0.6em 0;
+    border: none;
+    border-radius: 8px;
+    background: #fff;
+  }
+
+  .keypad button:active {
+    background: #ccc;
+  }
+
+  .keypad .wide {
+    grid-column: span 2;
   }
 </style>
 </head>
@@ -81,65 +117,85 @@
   <tbody id="table-body"></tbody>
 </table>
 
+<!-- テンキー -->
+<div class="keypad">
+  <button onclick="pressKey('7')">7</button>
+  <button onclick="pressKey('8')">8</button>
+  <button onclick="pressKey('9')">9</button>
+  <button onclick="pressKey('back')">⌫</button>
+
+  <button onclick="pressKey('4')">4</button>
+  <button onclick="pressKey('5')">5</button>
+  <button onclick="pressKey('6')">6</button>
+  <button onclick="pressKey('.')">.</button>
+
+  <button onclick="pressKey('1')">1</button>
+  <button onclick="pressKey('2')">2</button>
+  <button onclick="pressKey('3')">3</button>
+  <button onclick="pressKey('clear')" class="wide">C</button>
+
+  <button onclick="pressKey('0')" class="wide">0</button>
+</div>
+
 <script>
 const rows = ['A', 'B', 'C', 'D', 'E'];
 const tbody = document.getElementById('table-body');
+let activeInput = null;
 
+// 行を生成
 rows.forEach(row => {
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td class="row-label">${row}</td>
-
-    <td>
-      <input
-        type="text"
-        inputmode="decimal"
-        pattern="[0-9]*"
-        id="price-${row}"
-      >
-    </td>
-
-    <td>
-      <input
-        type="text"
-        inputmode="decimal"
-        pattern="[0-9]*"
-        id="size-${row}"
-      >
-    </td>
-
-    <td>
-      <input
-        type="text"
-        inputmode="numeric"
-        pattern="[0-9]*"
-        id="count-${row}"
-        value="1"
-      >
-    </td>
-
+    <td><input readonly id="price-${row}"></td>
+    <td><input readonly id="size-${row}"></td>
+    <td><input readonly id="count-${row}" value="1"></td>
     <td id="result-${row}" class="result">-</td>
   `;
   tbody.appendChild(tr);
 });
 
+// 入力欄フォーカス管理
+document.querySelectorAll('input').forEach(input => {
+  input.addEventListener('click', () => {
+    document.querySelectorAll('input').forEach(i => i.classList.remove('active'));
+    input.classList.add('active');
+    activeInput = input;
+  });
+});
+
+// テンキー処理
+function pressKey(key) {
+  if (!activeInput) return;
+
+  if (key === 'back') {
+    activeInput.value = activeInput.value.slice(0, -1);
+  } else if (key === 'clear') {
+    activeInput.value = '';
+  } else {
+    activeInput.value += key;
+  }
+
+  activeInput.dispatchEvent(new Event('input'));
+}
+
+// 単価計算
 function calc() {
   rows.forEach(row => {
     const price = parseFloat(document.getElementById(`price-${row}`).value);
     const size  = parseFloat(document.getElementById(`size-${row}`).value);
     const count = parseFloat(document.getElementById(`count-${row}`).value);
-
-    const cell = document.getElementById(`result-${row}`);
+    const cell  = document.getElementById(`result-${row}`);
 
     if (price > 0 && size > 0 && count > 0) {
-      const unit = price / (size * count);
-      cell.textContent = unit.toFixed(3);
+      cell.textContent = (price / (size * count)).toFixed(3);
     } else {
       cell.textContent = '-';
     }
   });
 }
 
+// 入力イベント監視
 document.querySelectorAll('input').forEach(input => {
   input.addEventListener('input', calc);
 });
