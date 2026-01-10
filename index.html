@@ -10,16 +10,16 @@
 
   body {
     margin: 0;
-    padding: 0.5em;
-    padding-bottom: 320px;
+    padding: 0.4em;
+    padding-bottom: 330px;
     font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif;
     background: #fafafa;
   }
 
   h1 {
     text-align: center;
-    font-size: 1.2em;
-    margin: 0.5em 0;
+    font-size: 1.3em;
+    margin: 0.4em 0 0.6em;
   }
 
   table {
@@ -28,29 +28,31 @@
     table-layout: fixed;
   }
 
+  col.row-col { width: 28px; }
+
   th, td {
-    padding: 0.4em;
+    padding: 0.55em 0.35em;
     text-align: center;
     white-space: nowrap;
   }
 
   th {
     background: #eee;
-    font-size: 0.9em;
+    font-size: 0.95em;
   }
 
   .row-label {
     font-weight: bold;
-    font-size: 0.9em;
+    font-size: 1em;
   }
 
   input {
     width: 100%;
-    padding: 0.4em;
-    font-size: 16px;
+    padding: 0.55em 0.4em;
+    font-size: 18px;
     text-align: right;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    border: 1px solid #bbb;
+    border-radius: 8px;
     background: #fff;
   }
 
@@ -61,17 +63,17 @@
 
   .result {
     font-weight: bold;
+    font-size: 16px;
     color: #006400;
   }
 
-  #summary {
-    margin-top: 0.8em;
-    padding: 0.6em;
-    background: #eef6ff;
-    border-radius: 8px;
-    font-weight: bold;
-    min-height: 2.2em;
-    text-align: center;
+  tr.best {
+    background: #e8f7e8;
+  }
+
+  tr.best .result {
+    background: #c8ebc8;
+    border-radius: 6px;
   }
 
   /* ===== テンキー ===== */
@@ -85,14 +87,14 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     grid-auto-rows: 1fr;
-    gap: 0.4em;
+    gap: 0.45em;
   }
 
   .keypad button {
-    font-size: 1.3em;
-    padding: 0.8em 0;
+    font-size: 1.35em;
+    padding: 0.9em 0;
     border: none;
-    border-radius: 8px;
+    border-radius: 10px;
     background: #fff;
   }
 
@@ -111,11 +113,8 @@
 
 <table>
   <colgroup>
-    <col style="width:28px">
-    <col>
-    <col>
-    <col>
-    <col>
+    <col class="row-col">
+    <col><col><col><col>
   </colgroup>
 
   <thead>
@@ -129,8 +128,6 @@
   </thead>
   <tbody id="table-body"></tbody>
 </table>
-
-<div id="summary">入力してください</div>
 
 <!-- テンキー -->
 <div class="keypad">
@@ -157,7 +154,6 @@
 const rows = ['A','B','C','D','E'];
 const cols = ['price','size','count'];
 const tbody = document.getElementById('table-body');
-const summary = document.getElementById('summary');
 
 let activeInput = null;
 let overwrite = false;
@@ -165,17 +161,18 @@ let overwrite = false;
 // テーブル生成
 rows.forEach((row, r) => {
   const tr = document.createElement('tr');
+  tr.dataset.row = r;
   tr.innerHTML = `
     <td class="row-label">${row}</td>
     ${cols.map(c =>
       `<td><input readonly data-row="${r}" data-col="${c}"></td>`
     ).join('')}
-    <td id="result-${row}" class="result">-</td>
+    <td class="result" id="result-${row}">-</td>
   `;
   tbody.appendChild(tr);
 });
 
-// フォーカス（上書きモード）
+// フォーカス（上書き）
 document.querySelectorAll('input').forEach(input => {
   input.addEventListener('click', () => {
     document.querySelectorAll('input').forEach(i => i.classList.remove('active'));
@@ -188,12 +185,10 @@ document.querySelectorAll('input').forEach(input => {
 // ===== テンキー =====
 function pressKey(key) {
   if (!activeInput) return;
-
   if (overwrite) {
     activeInput.value = '';
     overwrite = false;
   }
-
   activeInput.value += key;
   activeInput.dispatchEvent(new Event('input'));
 }
@@ -212,24 +207,24 @@ function pressClear() {
 
 function pressEnter() {
   if (!activeInput) return;
-
   const r = +activeInput.dataset.row;
   const c = cols.indexOf(activeInput.dataset.col);
-
   let nr = r, nc = c + 1;
   if (nc >= cols.length) { nc = 0; nr++; }
-
   const next = document.querySelector(
     `input[data-row="${nr}"][data-col="${cols[nc]}"]`
   );
   if (next) next.click();
 }
 
-// ===== 計算 =====
+// ===== 計算 & ハイライト =====
 function calc() {
   const list = [];
 
   rows.forEach((row, i) => {
+    const tr = tbody.querySelector(`tr[data-row="${i}"]`);
+    tr.classList.remove('best');
+
     const price = parseFloat(document.querySelector(`input[data-row="${i}"][data-col="price"]`).value);
     const size  = parseFloat(document.querySelector(`input[data-row="${i}"][data-col="size"]`).value);
     const count = parseFloat(document.querySelector(`input[data-row="${i}"][data-col="count"]`).value);
@@ -238,19 +233,16 @@ function calc() {
     if (price > 0 && size > 0 && count > 0) {
       const unit = price / (size * count);
       cell.textContent = unit.toFixed(2);
-      list.push({ row, unit });
+      list.push({ row, unit, tr });
     } else {
       cell.textContent = '-';
     }
   });
 
-  if (!list.length) {
-    summary.textContent = '入力してください';
-    return;
-  }
+  if (!list.length) return;
 
   list.sort((a,b) => a.unit - b.unit);
-  summary.textContent = `${list[0].row} が一番安い`;
+  list[0].tr.classList.add('best');
 }
 
 document.querySelectorAll('input').forEach(i =>
