@@ -79,17 +79,8 @@
     color: #fff;
   }
 
-  /* ★変更ここ */
   #title-input {
-    width: 100%;
     text-align: center;
-    resize: none;
-    overflow: hidden;
-    line-height: 1.1;
-    font-size: 1.1em;
-    border: none;
-    background: transparent;
-    color: #fff;
   }
 
   input.active {
@@ -130,7 +121,7 @@
 
   .keypad button {
     font-size: 1.35em;
-    padding: 0.45em 0;
+    padding: 0.45em 0; /* ← ここだけ変更（10%縮小） */
     border: 1px solid #333;
     border-radius: 10px;
     background: #222;
@@ -165,7 +156,7 @@
 <body>
 
 <h1>
-  <textarea id="title-input" rows="2"></textarea>
+  <input type="text" id="title-input" value="">
 </h1>
 
 <table>
@@ -189,7 +180,7 @@
   <tbody id="table-body"></tbody>
 </table>
 
-<div class="bottom-title">単価比較Ver.20260320</div>
+<div class="bottom-title">単価比較Ver.20260110</div>
 
 <div class="keypad">
   <button onclick="pressKey('7')">7</button>
@@ -213,7 +204,6 @@
 </div>
 
 <script>
-/* JSは変更なし */
 const rows = ['A','B','C','D','E'];
 const cols = ['price','size','count'];
 const tbody = document.getElementById('table-body');
@@ -243,7 +233,98 @@ document.querySelectorAll('input:not(.result-input)').forEach(input => {
   });
 });
 
-/* 以下省略（元のまま） */
+function pressKey(key) {
+  if (!activeInput) return;
+  if (overwrite) {
+    activeInput.value = '';
+    overwrite = false;
+  }
+  activeInput.value += key;
+  activeInput.dispatchEvent(new Event('input'));
+}
+
+function pressBack() {
+  if (!activeInput) return;
+  activeInput.value = activeInput.value.slice(0, -1);
+  activeInput.dispatchEvent(new Event('input'));
+}
+
+function pressClear() {
+  if (!activeInput) return;
+  activeInput.value = '';
+  activeInput.dispatchEvent(new Event('input'));
+}
+
+function pressEnter() {
+  if (!activeInput) return;
+  const r = +activeInput.dataset.row;
+  const c = cols.indexOf(activeInput.dataset.col);
+  let nr = r, nc = c + 1;
+  if (nc >= cols.length) { nc = 0; nr++; }
+  const next = document.querySelector(
+    `input[data-row="${nr}"][data-col="${cols[nc]}"]`
+  );
+  if (next) next.click();
+}
+
+function calc() {
+  const list = [];
+
+  rows.forEach((row, i) => {
+    const tr = tbody.querySelector(`tr[data-row="${i}"]`);
+    tr.classList.remove('best');
+
+    const price = parseFloat(document.querySelector(`input[data-row="${i}"][data-col="price"]`).value);
+    const size  = parseFloat(document.querySelector(`input[data-row="${i}"][data-col="size"]`).value);
+    const count = parseFloat(document.querySelector(`input[data-row="${i}"][data-col="count"]`).value);
+    const cell  = document.getElementById(`result-${row}`);
+
+    if (price > 0 && size > 0 && count > 0) {
+      const unit = price / (size * count);
+      cell.value = unit.toFixed(2);
+      list.push({ unit, tr });
+    } else {
+      cell.value = '';
+    }
+  });
+
+  if (!list.length) return;
+
+  list.sort((a, b) => a.unit - b.unit);
+  list[0].tr.classList.add('best');
+}
+
+document.querySelectorAll('input').forEach(i =>
+  i.addEventListener('input', calc)
+);
+
+function pressAllClear() {
+  document.querySelectorAll('input').forEach(input => {
+    input.value = '';
+  });
+  document.querySelectorAll('tr').forEach(tr => {
+    tr.classList.remove('best');
+  });
+  focusFirstInput();
+}
+
+function focusFirstInput() {
+  const first = document.querySelector(
+    'input[data-row="0"][data-col="price"]'
+  );
+  if (first) {
+    document.querySelectorAll('input').forEach(i =>
+      i.classList.remove('active')
+    );
+    first.classList.add('active');
+    activeInput = first;
+    overwrite = true;
+  }
+}
+
+window.addEventListener('load', () => {
+  focusFirstInput();
+});
 </script>
 
 </body>
