@@ -84,7 +84,6 @@
     background: rgba(10,132,255,0.15);
   }
 
-  /* 単価表示用スタイルの維持 */
   .result-input {
     font-weight: bold;
     font-size: 26px;
@@ -103,7 +102,6 @@
     border-radius: 4px;
   }
 
-  /* ===== テンキー ===== */
   .keypad {
     position: fixed;
     bottom: 0;
@@ -130,7 +128,6 @@
     background: #333;
   }
 
-/* ACボタンの色固定設定 */
 .keypad button.ac-button {
   background: #a00 !important;
   border-color: #c33 !important;
@@ -142,12 +139,23 @@
 }
 
   .span-col-2 { grid-column: span 2; }
+
+  /* 追加：下部タイトル */
+  .bottom-title {
+    text-align: right;
+    font-size: 0.8em;
+    margin-top: 6px;
+    color: #e5e5e5;
+  }
 </style>
 </head>
 
 <body>
 
-<h1>単価比較Ver.20260110</h1>
+<!-- ここを入力欄に変更 -->
+<h1>
+  <input type="text" id="title-input" value="">
+</h1>
 
 <table>
   <colgroup>
@@ -170,7 +178,9 @@
   <tbody id="table-body"></tbody>
 </table>
 
-<!-- テンキー -->
+<!-- 追加：Eの下に表示 -->
+<div class="bottom-title">単価比較Ver.20260110</div>
+
 <div class="keypad">
   <button onclick="pressKey('7')">7</button>
   <button onclick="pressKey('8')">8</button>
@@ -200,7 +210,6 @@ const tbody = document.getElementById('table-body');
 let activeInput = null;
 let overwrite = false;
 
-// テーブル生成
 rows.forEach((row, r) => {
   const tr = document.createElement('tr');
   tr.dataset.row = r;
@@ -214,7 +223,6 @@ rows.forEach((row, r) => {
   tbody.appendChild(tr);
 });
 
-// フォーカス設定（単価入力欄以外に適用）
 document.querySelectorAll('input:not(.result-input)').forEach(input => {
   input.addEventListener('click', () => {
     document.querySelectorAll('input').forEach(i => i.classList.remove('active'));
@@ -224,7 +232,6 @@ document.querySelectorAll('input:not(.result-input)').forEach(input => {
   });
 });
 
-// ===== テンキー =====
 function pressKey(key) {
   if (!activeInput) return;
   if (overwrite) {
@@ -259,7 +266,6 @@ function pressEnter() {
   if (next) next.click();
 }
 
-// ===== 計算 & 最安ハイライト =====
 function calc() {
   const list = [];
 
@@ -274,10 +280,10 @@ function calc() {
 
     if (price > 0 && size > 0 && count > 0) {
       const unit = price / (size * count);
-      cell.value = unit.toFixed(2); // textContentからvalueに変更
+      cell.value = unit.toFixed(2);
       list.push({ unit, tr });
     } else {
-      cell.value = ''; // ハイフンの代わりに空文字（下線は残る）
+      cell.value = '';
     }
   });
 
@@ -291,7 +297,6 @@ document.querySelectorAll('input').forEach(i =>
   i.addEventListener('input', calc)
 );
 
-// ===== オールクリア（AC） =====
 function pressAllClear() {
   document.querySelectorAll('input').forEach(input => {
     input.value = '';
@@ -302,7 +307,6 @@ function pressAllClear() {
   focusFirstInput();
 }
 
-// ===== フォーカス初期化 =====
 function focusFirstInput() {
   const first = document.querySelector(
     'input[data-row="0"][data-col="price"]'
@@ -324,7 +328,3 @@ window.addEventListener('load', () => {
 
 </body>
 </html>
-
-
-
-
