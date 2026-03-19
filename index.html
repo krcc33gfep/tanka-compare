@@ -78,9 +78,10 @@
     background: transparent;
     color: #fff;
   }
-      #title-input {
-  text-align: center;
-}
+
+  #title-input {
+    text-align: center;
+  }
 
   input.active {
     border-bottom: 2px solid #0a84ff;
@@ -120,7 +121,7 @@
 
   .keypad button {
     font-size: 1.35em;
-    padding: 0.5em 0;
+    padding: 0.45em 0; /* ← ここだけ変更（10%縮小） */
     border: 1px solid #333;
     border-radius: 10px;
     background: #222;
@@ -143,7 +144,6 @@
 
   .span-col-2 { grid-column: span 2; }
 
-  /* 追加：下部タイトル */
   .bottom-title {
     text-align: right;
     font-size: 0.8em;
@@ -155,7 +155,6 @@
 
 <body>
 
-<!-- ここを入力欄に変更 -->
 <h1>
   <input type="text" id="title-input" value="">
 </h1>
@@ -181,7 +180,6 @@
   <tbody id="table-body"></tbody>
 </table>
 
-<!-- 追加：Eの下に表示 -->
 <div class="bottom-title">単価比較Ver.20260110</div>
 
 <div class="keypad">
