@@ -11,7 +11,7 @@
 
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-<title>単価比較</title>
+<title>単価比較Ver.20260110</title>
 
 <style>
   * { box-sizing: border-box; }
@@ -35,6 +35,13 @@
     font-size: 1.25em;
     margin: 0.4em 0 0.5em;
     color: #e5e5e5;
+  }
+
+  #title-input {
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+    color: #4dd0ff;
   }
 
   table {
@@ -79,13 +86,6 @@
     color: #fff;
   }
 
-  #title-input {
-    text-align: center;
-    font-size: 23px;
-    font-weight: bold;
-    color: #b388ff;
-  }
-
   input.active {
     border-bottom: 2px solid #0a84ff;
     background: rgba(10,132,255,0.15);
@@ -109,6 +109,14 @@
     border-radius: 4px;
   }
 
+  /* ▼ ここが今回のポイント */
+  .bottom-title {
+    text-align: right;
+    font-size: 0.8em;
+    margin-top: 6px;
+    color: #e5e5e5;
+  }
+
   .keypad {
     position: fixed;
     bottom: 0;
@@ -124,7 +132,7 @@
 
   .keypad button {
     font-size: 1.35em;
-    padding: 0.45em 0; /* ← ここだけ変更（10%縮小） */
+    padding: 0.45em 0;
     border: 1px solid #333;
     border-radius: 10px;
     background: #222;
@@ -135,24 +143,17 @@
     background: #333;
   }
 
-.keypad button.ac-button {
-  background: #a00 !important;
-  border-color: #c33 !important;
-  color: #fff !important;
-}
+  .keypad button.ac-button {
+    background: #a00 !important;
+    border-color: #c33 !important;
+    color: #fff !important;
+  }
 
-.keypad button.ac-button:active {
-  background: #c33 !important;
-}
+  .keypad button.ac-button:active {
+    background: #c33 !important;
+  }
 
   .span-col-2 { grid-column: span 2; }
-
-  .bottom-title {
-    text-align: right;
-    font-size: 0.8em;
-    margin-top: 6px;
-    color: #e5e5e5;
-  }
 </style>
 </head>
 
@@ -183,7 +184,8 @@
   <tbody id="table-body"></tbody>
 </table>
 
-<div class="bottom-title">単価比較Ver.20260320</div>
+<!-- ▼ ここ変更済み -->
+<div class="bottom-title" id="bottom-text"></div>
 
 <div class="keypad">
   <button onclick="pressKey('7')">7</button>
@@ -300,6 +302,19 @@ function calc() {
 document.querySelectorAll('input').forEach(i =>
   i.addEventListener('input', calc)
 );
+
+/* ▼ 日付＋タイトル表示 */
+function updateDate() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth() + 1;
+  const d = now.getDate();
+
+  document.getElementById('bottom-text').textContent =
+    `${y}年${m}月${d}日　単価比較Ver.20260110`;
+}
+
+updateDate();
 
 function pressAllClear() {
   document.querySelectorAll('input').forEach(input => {
